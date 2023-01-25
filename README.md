@@ -25,6 +25,6 @@ python manage.py runserver
 комментировая чужих и своих постов, подписок на других авторов.
 
 Все запросы к API обрабатываются по url: api/v1/. Авторизация реализована 
-с помощью JWT-токенов и djoser по адресу app/v1/auth/. 
+с помощью JWT-токенов и djoser по адресу api/v1/auth/. 
 Список запросов djoser: https://djoser.readthedocs.io/en/latest/getting_started.html
 
