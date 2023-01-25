@@ -8,7 +8,7 @@ router_v2 = DefaultRouter()
 
 router_v2.register(r'posts', PostViewSet)
 router_v2.register(r'posts\/(?P<post_pk>([1-9]\d*))\/comments', CommentViewSet)
-router_v2.register(r'follow/', FollowViewSet)
+router_v2.register(r'follow', FollowViewSet)
 
 
 urlpatterns = [
