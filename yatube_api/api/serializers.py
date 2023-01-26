@@ -28,7 +28,7 @@ class PostSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
-    image = Base64ImageField(allow_null=True)
+    image = Base64ImageField(allow_null=True, required=False)
 
     class Meta:
         fields = (
@@ -87,10 +87,12 @@ class FollowSerializer(serializers.ModelSerializer):
         read_only=True,
     )
     following = serializers.SlugRelatedField(
-        default=serializers.CurrentUserDefault(),
         slug_field='username',
         read_only=True,
     )
+
+    def create(self, validated_data):
+        return Follow(**validated_data)
 
     class Meta:
         fields = ('user', 'following')
