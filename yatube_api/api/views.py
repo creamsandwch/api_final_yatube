@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, mixins, filters
-from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly,\
     IsAuthenticated
@@ -56,19 +55,14 @@ class FollowViewSet(MainViewSet):
     permission_classes = [IsAuthenticated]
 
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('user', 'following')
+    search_fields = ('user__username', 'following__username')
 
     def perform_create(self, serializer):
-        follow_obj = self.get_queryset().filter(
-            following=self.request.data.get('following')
-        )
-        if follow_obj.exists():
-            raise ValidationError('Вы уже подписаны на этого пользователя.')
-
         serializer.save(
             user=self.request.user,
             following=self.request.data.get('following')
         )
+        return super().perform_create(serializer)
 
     def get_queryset(self):
         queryset = Follow.objects.filter(user=self.request.user)
