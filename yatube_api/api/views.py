@@ -23,7 +23,7 @@ class ListRetrieveViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet
 ):
-    pass
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class PostViewSet(MainViewSet):
@@ -62,6 +62,10 @@ class FollowViewSet(MainViewSet):
             user=self.request.user,
             following=self.request.data.get('following')
         )
+
+    def get_queryset(self):
+        queryset = Follow.objects.filter(user=self.request.user)
+        return queryset
 
 
 class GroupViewSet(ListRetrieveViewSet):
