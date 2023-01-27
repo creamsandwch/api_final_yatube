@@ -1,45 +1,170 @@
 # api_final
-api final
-Как запустить проект (для Windows):
-Клонировать репозиторий и перейти в него в командной строке:
+### Как запустить проект (для Windows):
+##### 1. Клонировать репозиторий и перейти в него в командной строке:
+- git clone git@github.com:creamsandwch/api_final_yatube.git
+- cd yatube_api
 
-git clone git@github.com:creamsandwch/api_final_yatube.git
-cd yatube_api
+##### 2. Cоздать и активировать виртуальное окружение:
+- python -m venv venv
+- . venv/scripts/activate # для Windows
 
-Cоздать и активировать виртуальное окружение:
-python -m venv venv
-. venv/scripts/activate # для Windows
+##### 3. Установить зависимости из файла requirements.txt:
+- python -m pip install --upgrade pip
+- pip install -r requirements.txt
 
-Установить зависимости из файла requirements.txt:
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+##### 4. Выполнить миграции:
+- python manage.py migrate
 
-Выполнить миграции:
-python manage.py migrate
+##### 5. Запустить проект:
+- python manage.py runserver
 
-Запустить проект:
-python manage.py runserver
-
-В проекте не реализованы .html шаблоны, только CRUD API проекта yatube,
+### Описание: 
+- В проекте не реализованы .html шаблоны, только CRUD API проекта yatube,
 который предоставляет функционал создания и управления постами,
 комментировая чужих и своих постов, подписок на других авторов.
 
-Все запросы к API обрабатываются по url: api/v1/. Авторизация реализована 
+- Все запросы к API обрабатываются по url: api/v1/. Авторизация реализована 
 с помощью JWT-токенов и djoser по адресу api/v1/auth/. 
 Список запросов djoser: https://djoser.readthedocs.io/en/latest/getting_started.html
 
-Примеры запросов:
+- CRUD API работает с моделями постов, групп постов, комментариев и подписок авторов друг на друга.
+List и Retrieve постов, групп и комментариев доступны для анонимных пользователей, остальные методы только для авторизованных пользователей. Для постов реализована LimitOffsetPagination. Для подписок реализован поиск по имени пользователя подписчика/подписавшегося. Все запросы к объектам подписок доступны только для авторизованных пользователей. Изменение любого созданного пользователем объекта ограничено проверкой на авторство.
 
-Получение всех постов
-Запрос GET api/v1/posts/?limit=2&offset=4
+### Примеры запросов:
+
+##### 1. Получение всех постов
+Запрос 
+```
+GET api/v1/posts/?limit=1&offset=1
+```
 вернет ответ 
 ```
 {
-    "count": 123,
-    "next": "http://api.example.org/accounts/?offset=400&limit=100",
-    "previous": "http://api.example.org/accounts/?offset=200&limit=100",
+    "count": 4,
+    "next": "http://127.0.0.1:8000/api/v1/posts/?limit=1&offset=2",
+    "previous": "http://127.0.0.1:8000/api/v1/posts/?limit=1",
     "results": [
-        {}
+        {
+            "id": 2,
+            "author": "string",
+            "text": "string",
+            "pub_date": "2023-01-25T09:58:12.262256Z",
+            "image": null,
+            "group": null
+        }
+    ]
+}
+```
+
+##### 2. Добавление комментария:
+Запрос с токеном автора комментария:
+```
+PATCH api/v1/posts/1/comments/2/
+```
+и данными:
+```
+{
+        "text": "коммент ред."
+}
+```
+вернет ответ 
+```
+{
+    "id": 2,
+    "author": "string",
+    "text": "коммент ред.",
+    "created": "2023-01-25T10:21:22.365710Z",
+    "post": 1
+}
+```
+##### 3. Частичное обновление комментария:
+Запрос с токеном автора комментария:
+```
+PATCH api/v1/posts/1/comments/2/
+```
+и данными:
+```
+{
+        "text": "коммент ред."
+}
+```
+вернет ответ 
+```
+{
+    "id": 2,
+    "author": "string",
+    "text": "коммент ред.",
+    "created": "2023-01-25T10:21:22.365710Z",
+    "post": 1
+}
+```
+##### 4. Поиск по подпискам:
+Запрос отфильтрует по переданному в search параметру объекты подписок по имени пользователей из пар user1/user2.
+```
+GET api/v1/follow?search=admin
+```
+И вернет ответ:
+```
+[
+    {
+        "user": "admin",
+        "following": "user1"
+    },
+    {
+        "user": "admin",
+        "following": "user2"
+    },
+    {
+        "user": "admin",
+        "following": "user3"
+    }
+]
+```
+##### 5. Обновление поста:
+Запрос с переданным токеном автора поста:
+```
+PATCH api/v1/posts/3/
+```
+И данными:
+```
+{
+        "text": "new text"
+}
+```
+Вернет ответ:
+```
+{
+    "id": 3,
+    "author": "admin",
+    "text": "new text",
+    "pub_date": "2023-01-26T03:56:39.976197Z",
+    "image": null,
+    "group": 2
+}
+```
+##### 6. Подписка на автора:
+Запрос от пользователя user1 с ппереданным токеном авторизации:
+```
+POST api/v1/follow/
+```
+И данными:
+```
+{
+        "following": "username_following"
+}
+```
+Вернет ответ:
+```
+{
+        "user": "user1",
+        "following": "username_following"
+}
+```
+Если user1 уже был подписан на username_following, ответ будет содержать ошибку:
+```
+{
+    "non_field_errors": [
+        "Объект подписки уже существует!"
     ]
 }
 ```
