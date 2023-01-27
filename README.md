@@ -33,11 +33,11 @@ python manage.py runserver
 Получение всех постов
 Запрос GET api/v1/posts/?limit=2&offset=4
 вернет ответ 
-'''{
+```{
     "count": 123,
     "next": "http://api.example.org/accounts/?offset=400&limit=100",
     "previous": "http://api.example.org/accounts/?offset=200&limit=100",
     "results": [
         {}
     ]
-'''}
+}```
