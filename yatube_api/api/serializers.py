@@ -94,12 +94,6 @@ class FollowSerializer(serializers.ModelSerializer):
         slug_field='username'
     )
 
-    def validate_following(self, value):
-        following_user_instance = User.objects.get(
-            username=self.initial_data.get('following')
-        )
-        return following_user_instance
-
     def validate(self, data):
         if self.context['request'].user == data.get('following'):
             raise ValidationError('Вы не можете подписаться сами на себя!')
